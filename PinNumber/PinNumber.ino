@@ -1,13 +1,15 @@
 /*
+TX-1  (UART0 Tx)
+RX-3  (UART0 Rx)
 D0-16
 D1-5
 D2-4
 D3-0
-D4-2
+D4-2  (UART1 Tx)
 D5-14
 D6-12
-D7-13
-D8-15
+D7-13 (UART2 Rx)
+D8-15 (UART2 Tx)
 A0-17
 */
 
