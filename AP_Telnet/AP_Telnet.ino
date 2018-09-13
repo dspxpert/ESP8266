@@ -24,9 +24,10 @@ void setup() {
 	delay(1000);
   // pinMode(led, OUTPUT);
 	Serial.begin(115200);
-  Serial.swap();
+  	Serial.swap();
 	/* You can remove the password parameter if you want the AP to be open. */
-	WiFi.softAP(ssid, password);
+	//WiFi.softAP(ssid, password);
+  	WiFi.softAP(ssid);
 
 	IPAddress myIP = WiFi.softAPIP();
  
