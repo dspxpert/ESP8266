@@ -1,5 +1,6 @@
 /*
- D4(GPIO2)  : Baudrate Selection - 0:9600, 1:115200
+ D1(GPIO5) : Badurate Selection 0:9600, 1:115200
+ D2(GPIO4) : GND using GPIO write LOW
  D7(GPIO13) : UART2 RX(from DUT TX)
  D8(GPIO15) : UART2 TX(to   DUT RX)
 */
@@ -20,9 +21,11 @@ WiFiClient serverClients[MAX_SRV_CLIENTS];
 //   192.168.4.1 
 
 void setup() {
-	pinMode(D4, INPUT_PULLUP);
+	pinMode(D1, INPUT_PULLUP);
+	pinMode(D2, OUTPUT);
+	digitalWrite(D2, LOW);
 	delay(1000);
-	if (digitalRead(D4)) Serial.begin(115200);
+	if (digitalRead(D1)) Serial.begin(115200);
 	else Serial.begin(9600);
 	
   	Serial.swap();
