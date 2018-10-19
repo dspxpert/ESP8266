@@ -23,6 +23,7 @@ U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE);
 char print_str[17];
 int  updated = 0;
 int  loop_toggle = 0;
+int  fps = 0;
 unsigned long prev_time = 0;
 
 /* Set these to your desired credentials. */
@@ -64,6 +65,9 @@ void loop() {
   current_time = millis();
   if(current_time - prev_time > 1000) {
     updated = 1;
+    sprintf(print_str, "%03d", fps);
+    u8x8.drawString(12,7,print_str);
+    fps = 0;
     prev_time = current_time;
   }
 
@@ -85,8 +89,9 @@ void loop() {
   u8x8.draw2x2String(4,5,print_str);
   
   // loop toggle indicator by blinking dot 
-  u8x8.setCursor(15,0);
+  u8x8.setCursor(15,7);
   loop_toggle ^= 1;
+  fps ++;
   if(loop_toggle)  u8x8.print(".");  
   else u8x8.print(" "); 
   
