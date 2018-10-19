@@ -24,6 +24,7 @@ char print_str[17];
 int  updated = 0;
 int  loop_toggle = 0;
 int  fps = 0;
+float A0min=99, A0max=0, A0sum=0;
 unsigned long prev_time = 0;
 
 /* Set these to your desired credentials. */
@@ -64,9 +65,17 @@ void loop() {
   // check updated to send data every 1 sec. 
   current_time = millis();
   if(current_time - prev_time > 1000) {
-    updated = 1;
-    sprintf(print_str, "%03d", fps);
-    u8x8.drawString(12,7,print_str);
+    sprintf(print_str, "Min:%02.3fV ",A0min);
+    u8x8.drawString(0,5,print_str);
+    sprintf(print_str, "Max:%02.3fV ",A0max);
+    u8x8.drawString(0,6,print_str);
+    sprintf(print_str, "Avg:%02.3fV ",A0sum/fps);
+    u8x8.drawString(0,7,print_str);
+    sprintf(print_str, "%02d", fps);
+    u8x8.drawString(13,7,print_str);
+
+    updated = 1;    
+    A0sum = 0;
     fps = 0;
     prev_time = current_time;
   }
@@ -75,6 +84,11 @@ void loop() {
   float volt = analogRead(A0)*10.8/1023;
   char logic;
 
+  //min, max, sum
+  if(volt < A0min) A0min = volt;
+  if(volt > A0max) A0max = volt;
+  A0sum += volt;
+  
   // Logic decision according to 1.8V CMOS level
   // CMOS : L = 1/3 VDD, H = 2/3 VDD
   // TTL  : L = 0.8V, H = 2V
@@ -83,10 +97,10 @@ void loop() {
   else logic = '?';
 
   // enlarged display for Analog Pins 
-  sprintf(print_str, "A:%0.3fV", volt);
-  u8x8.draw2x2String(0,2,print_str);
-  sprintf(print_str, "(%c)", logic);  
-  u8x8.draw2x2String(4,5,print_str);
+  sprintf(print_str, "%0.3fV ", volt);
+  u8x8.draw2x2String(3,2,print_str);
+  sprintf(print_str, "%c", logic);  
+  u8x8.draw2x2String(13,5,print_str);
   
   // loop toggle indicator by blinking dot 
   u8x8.setCursor(15,7);
