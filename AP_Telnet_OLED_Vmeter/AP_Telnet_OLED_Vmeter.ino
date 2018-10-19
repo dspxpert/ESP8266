@@ -22,6 +22,7 @@ U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE);
 
 char print_str[17];
 int  updated = 0;
+int  loop_toggle = 0;
 unsigned long prev_time = 0;
 
 /* Set these to your desired credentials. */
@@ -40,7 +41,7 @@ void setup() {
   u8x8.setFont(u8x8_font_pressstart2p_f);    
   u8x8.clear();
   u8x8.setCursor(0,0);
-  u8x8.print("OLED Volt Meter");
+  u8x8.print("ESP Volt Meter");
   
   Serial.begin(115200);
   // Serial.swap();
@@ -59,27 +60,35 @@ void loop() {
   unsigned long current_time;
   uint8_t i;
 
+  // check updated to send data every 1 sec. 
   current_time = millis();
   if(current_time - prev_time > 1000) {
     updated = 1;
     prev_time = current_time;
   }
-  
-   /* CMOS : L = 1/3 VDD, H = 2/3 VDD
-   * TTL  : L = 0.8V, H = 2V
-   */
- 
+
+  // A0 voltage divider R changed from 220K -> 1M, A0 input ranged 0~10.8V
   float volt = analogRead(A0)*10.8/1023;
   char logic;
 
+  // Logic decision according to 1.8V CMOS level
+  // CMOS : L = 1/3 VDD, H = 2/3 VDD
+  // TTL  : L = 0.8V, H = 2V
   if (volt >= 1.2) logic = 'H';
   else if(volt <= 0.6) logic = 'L';
   else logic = '?';
-   
+
+  // enlarged display for Analog Pins 
   sprintf(print_str, "A:%0.3fV", volt);
   u8x8.draw2x2String(0,2,print_str);
   sprintf(print_str, "(%c)", logic);  
   u8x8.draw2x2String(4,5,print_str);
+  
+  // loop toggle indicator by blinking dot 
+  u8x8.setCursor(15,0);
+  loop_toggle ^= 1;
+  if(loop_toggle)  u8x8.print(".");  
+  else u8x8.print(" "); 
   
   //check if there are any new clients
   if (server.hasClient()){
@@ -95,7 +104,8 @@ void loop() {
     WiFiClient serverClient = server.available();
     serverClient.stop();
   }
-
+  
+  // send analog voltage to all client & serial port every 1 sec.
   if(updated) {
     for(i = 0; i < MAX_SRV_CLIENTS; i++){
       if (serverClients[i] && serverClients[i].connected()){
